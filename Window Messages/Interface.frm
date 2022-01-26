@@ -33,6 +33,7 @@ Begin VB.Form InterfaceWindow
       Caption         =   "&Monitor"
       Begin VB.Menu EndMonitorMenu 
          Caption         =   "&End Monitor"
+         Enabled         =   0   'False
          Shortcut        =   {F1}
       End
       Begin VB.Menu StartMonitorMenu 
@@ -53,6 +54,9 @@ Option Explicit
 Private Sub EndMonitorMenu_Click()
 On Error GoTo ErrorTrap
    WindowHook , Unhook:=True
+   
+   EndMonitorMenu.Enabled = False
+   StartMonitorMenu.Enabled = True
 EndRoutine:
    Exit Sub
    
@@ -83,16 +87,8 @@ ErrorTrap:
 End Sub
 
 
-'This procedure adjusts this window to its new size.
-Private Sub Form_Resize()
-On Error Resume Next
-   MessageBox.Width = Me.ScaleWidth
-   MessageBox.Height = Me.ScaleHeight
-End Sub
-
-
-'This procedure stops any active window monitors when this window is closed.
-Private Sub Form_Unload(Cancel As Integer)
+'This procedure stops any active window monitors when this window is about to close.
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
 On Error GoTo ErrorTrap
    WindowHook , Unhook:=True
 EndRoutine:
@@ -101,6 +97,13 @@ EndRoutine:
 ErrorTrap:
    HandleError
    Resume EndRoutine
+End Sub
+
+'This procedure adjusts this window to its new size.
+Private Sub Form_Resize()
+On Error Resume Next
+   MessageBox.Width = Me.ScaleWidth
+   MessageBox.Height = Me.ScaleHeight
 End Sub
 
 
@@ -118,6 +121,11 @@ Dim WindowH As String
    If Not CLng(Val(WindowH)) = NO_WINDOW Then
       WindowHook , Unhook:=True
       WindowHook NewWindowH:=CLng(Val(WindowH))
+      
+      MessageBox.Text = vbNullString
+            
+      EndMonitorMenu.Enabled = True
+      StartMonitorMenu.Enabled = False
    End If
 EndRoutine:
    Exit Sub
